@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#103e31">
+<meta name="description" content="Private, offline-friendly 50/30/20 budget planner with target vs current expenses, image and PDF export. Created for Streams Into Wealth.">
+<title>Pocket Streams Budget | Streams Into Wealth</title>
+<style>
+:root{--forest:#103e31;--forest2:#092c24;--gold:#caa244;--goldpale:#f8f1db;--ink:#19392f;--muted:#647970;--line:#e1e9e2;--bg:#f7f8f4;--white:#fff;--shade:#f5f8f5;--blue:#396d82;--red:#a34732;--green:#16714f}
+*{box-sizing:border-box}
+html{font-family:system-ui,-apple-system,'Segoe UI',Arial,sans-serif;scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);line-height:1.38}
+button,input{font:inherit}button{touch-action:manipulation;cursor:pointer}
+button:focus-visible,input:focus-visible{outline:3px solid #d3a349;outline-offset:2px}
+.shell{width:min(100%,790px);min-height:100vh;margin:auto;background:#fff;box-shadow:0 9px 35px #0a332a0b}
+.mast{background:linear-gradient(125deg,var(--forest2),var(--forest));color:#fff;padding:26px 21px 25px;border-bottom:5px solid var(--gold);text-align:center}
+.brand{font-size:10px;font-weight:800;color:#f3dfb2;text-transform:uppercase;letter-spacing:.19em}
+.mast h1{font:700 clamp(30px,5.8vw,44px)/1.02 Georgia,'Times New Roman',serif;margin:9px 0 9px}.mast h1 span{color:#f0d189}
+.mast p{font-size:13px;color:#e1ece6;margin:0 auto;max-width:540px}.mast .budget-subtitle{color:#f0d189;font-size:16px;font-weight:800;letter-spacing:.035em;margin:0 auto 8px}
+.content{padding:18px 16px 32px}
+.headingline{font-size:10px;letter-spacing:.14em;font-weight:850;text-transform:uppercase;color:#9d792a}
+.incomebox{background:#f9faf6;border:1px solid #e4eade;border-radius:16px;padding:17px 16px;margin-bottom:17px}
+.income-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px;margin-top:10px}
+label.mainlabel{font-weight:750;display:block;font-size:13px;margin-bottom:5px}
+.muted{font-size:11px;color:var(--muted)}
+.budget-field{width:100%;min-width:0;border:1.5px solid #ccd8cf;border-radius:10px;background:#fff;display:flex;align-items:center;padding:0 9px;min-height:49px}
+.budget-field:focus-within{border-color:var(--forest)}
+.budget-field span{font-size:18px;color:#76887d;font-weight:700}
+.budget-field input{width:100%;min-width:0;outline:0;border:0;background:transparent;color:var(--forest);font-size:20px;padding:9px 3px;font-weight:750;font-variant-numeric:tabular-nums}
+.budget-field input::-webkit-inner-spin-button,.cash-input input::-webkit-inner-spin-button{appearance:none}
+.month-field{min-height:49px;width:100%;padding:9px 8px;border:1.5px solid #ccd8cf;border-radius:10px;font-size:16px;color:var(--ink);background:#fff}
+.preamble{margin:15px 0 11px;font-size:12px;color:var(--muted)}
+.bucket{border:1px solid var(--line);border-radius:15px;margin:16px 0 20px;overflow:hidden;background:#fff;box-shadow:0 2px 10px #0d42300a}
+.bucket-title{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:15px 14px 11px}
+.bucket-left{display:flex;align-items:center;gap:9px;min-width:0}
+.bucket-dot{width:9px;height:33px;border-radius:12px;background:var(--forest)}
+.bucket.wants .bucket-dot{background:var(--gold)}.bucket.future .bucket-dot{background:var(--blue)}
+.bucket h2{font-size:19px;margin:0;letter-spacing:.01em}.bucket .sub{font-size:11px;color:var(--muted);margin-top:1px}
+.perc{font-size:12px;font-weight:800;color:#255542;border-radius:50px;background:#e8f2eb;padding:7px 9px;white-space:nowrap}
+.bucket.wants .perc{background:#fbefd2;color:#855e09}.bucket.future .perc{background:#e8f1f5;color:#35677b}
+.bucket-headline{display:flex;align-items:baseline;justify-content:space-between;gap:9px;padding:0px 14px 12px;border-bottom:1px solid var(--line)}
+.bucket-headline .guide{font-size:11px;color:var(--muted)}
+.bucket-headline .cap{font-size:18px;font-weight:800;color:var(--forest);font-variant-numeric:tabular-nums}
+.rowhead,.budget-row,.totals-row{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,.85fr) minmax(0,.85fr);align-items:center;gap:7px}
+.rowhead{background:var(--shade);font-size:11px;text-transform:uppercase;letter-spacing:.045em;font-weight:800;color:#4d6659;padding:10px 13px}
+.rowhead div:not(:first-child){text-align:center}
+.budget-rows{padding:4px 12px 0}
+.budget-row{padding:7px 0;border-bottom:1px solid #edf1ed;min-height:48px}
+.item-wrap{display:flex;gap:3px;min-width:0;align-items:center}
+.item-name{background:transparent;border:1px solid transparent;border-radius:7px;min-width:0;width:100%;padding:9px 4px;font-size:14px;color:var(--ink);text-overflow:ellipsis}
+.item-name:focus{border:1px solid #aec3b1;background:#f9fbf9;outline:0}
+.remove{font-size:16px;width:20px;height:29px;flex:none;display:flex;justify-content:center;align-items:center;color:#829188;background:none;border:0;border-radius:5px}
+.remove:hover{background:#f3e5de;color:var(--red)}
+.cash-input{min-width:0;display:flex;align-items:center;gap:1px;border:1px solid #dbe5dd;background:#fff;border-radius:8px;padding:0 5px;min-height:41px}
+.cash-input.current{background:#fbfbf7;border-color:#d9daca}
+.cash-input span{color:#657b70;font-weight:750;font-size:12px}
+.cash-input input{min-width:0;width:100%;border:0;outline:0;background:transparent;color:#174434;font-size:16px;font-weight:750;padding:7px 0;font-variant-numeric:tabular-nums}
+.cash-input:focus-within{border:1px solid #b59640;box-shadow:0 0 0 2px #c9aa5240}
+.add-row{margin:10px 13px 13px;color:var(--forest);background:#fff;border:1px dashed #b6cab9;border-radius:8px;font-size:12px;font-weight:800;padding:9px 12px}
+.add-row:hover{background:#f6faf7}
+.totals{background:#f5f8f4;border-top:1px solid #dae5dc;padding:11px 13px 12px}
+.totals-row{font-size:14px;font-weight:800}.totals-row>div:not(:first-child){text-align:right;font-variant-numeric:tabular-nums;font-size:17px}
+.totals-foot{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:11px;color:#66786b;margin-top:7px}
+.totals-foot .difference{font-weight:800;text-align:right;color:var(--forest)}
+.totals-foot .difference.over{color:var(--red)}
+.summary-panel{margin-top:22px;background:var(--forest);color:#fff;padding:19px 16px 17px;border-radius:16px}
+.summary-panel h2{margin:4px 0 15px;font-size:21px;font-family:Georgia,'Times New Roman',serif}
+.sumrow{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid #ffffff29;font-size:13px}
+.sumrow b{font-variant-numeric:tabular-nums;font-size:16px}
+.sumrow.major{border-bottom:0;margin-top:12px;padding-top:11px;color:#f9e4aa;align-items:flex-end}
+.sumrow.major strong{font-size:24px;font-variant-numeric:tabular-nums}
+.sum-note{font-size:11px;color:#d1e3d8;line-height:1.5;margin-top:8px}
+.actions-card{margin-top:19px;border:1px solid var(--line);border-radius:15px;padding:16px;background:#fafbf8}
+.actions-card h2{font-size:18px;margin:0 0 3px}.buttons{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin-top:14px}
+.btn{border:1px solid #cad8cf;background:#fff;color:var(--forest);border-radius:10px;min-height:45px;font-size:13px;font-weight:800;padding:8px 9px}
+.btn.primary{background:var(--forest);color:#fff;border-color:var(--forest)}
+.btn.gold{background:#f8efd4;border-color:#dac37f}
+.state{margin-top:11px;font-size:12px;color:var(--muted)}
+.banner{margin-top:16px;border-left:3px solid var(--gold);background:#fcfaf2;padding:12px 12px 12px 14px;border-radius:0 9px 9px 0;font-size:12px;color:#54695d}
+.details{margin-top:15px;border-top:1px solid var(--line);padding-top:10px}
+.details summary{cursor:pointer;color:var(--forest);font-size:13px;font-weight:750;padding:9px 0}.details p{font-size:12px;color:#56685e}
+.footer{text-align:center;margin-top:30px;padding:15px 8px 0;border-top:1px solid var(--line)}
+.footer b{font-size:13px;color:var(--forest);letter-spacing:.08em}.footer p{color:#7d8d82;font-size:11px;margin:7px auto;max-width:520px}
+.visually-hidden{position:absolute;clip:rect(0,0,0,0);width:1px;height:1px;overflow:hidden;white-space:nowrap}
+@media(min-width:600px){.content{padding:28px 30px}.mast{padding:36px 25px}.rowhead,.budget-row,.totals-row{grid-template-columns:minmax(0,2fr) minmax(0,1fr) minmax(0,1fr);gap:15px}.budget-rows{padding:7px 16px 0}.rowhead,.totals{padding-left:17px;padding-right:17px}.item-name{font-size:15px}.cash-input{max-width:230px}.buttons{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:355px){.content{padding:13px 9px}.rowhead,.budget-row,.totals-row{gap:4px;grid-template-columns:minmax(0,1.2fr) minmax(0,.85fr) minmax(0,.85fr)}.budget-rows{padding:4px 7px}.rowhead,.totals{padding-left:8px;padding-right:8px}.item-name{font-size:12px}.cash-input{padding:0 4px}.cash-input input{font-size:14px}.cash-input span{font-size:11px}.bucket h2{font-size:17px}.btn{font-size:12px}}
+@media print{body{background:#fff}.shell{box-shadow:none;max-width:none}.mast,.summary-panel{print-color-adjust:exact;-webkit-print-color-adjust:exact}.actions-card,.details,.add-row,.remove{display:none!important}.budget{break-inside:avoid}.bucket{break-inside:avoid}.content{padding:10px}.footer{margin-top:12px}}
+</style>
+</head>
+<body>
+<main class="shell">
+<header class="mast"><div class="brand">STREAMS INTO WEALTH</div><h1>Pocket <span>Streams</span> Budget</h1><p class="budget-subtitle">Your 50 / 30 / 20 Budget</p><p>Plan it. Track it. Adjust it. Build wealth in small pockets of time.</p></header>
+<div class="content">
+<section class="incomebox" aria-label="Income and budget month"><div class="headingline">Step 1 • Start with your money</div><div class="income-grid"><div><label class="mainlabel" for="income">Monthly take-home income</label><div class="budget-field"><span aria-hidden="true">$</span><input id="income" type="number" min="0" inputmode="decimal" step="0.01" placeholder="0" autocomplete="off"></div></div><div><label class="mainlabel" for="month">Budget month</label><input class="month-field" id="month" type="month" aria-label="Budget month"></div></div><div class="muted" style="margin-top:9px">Use income after taxes. Your 50/30/20 guidelines update automatically.</div></section>
+<div class="headingline">Step 2 • Scroll through the three buckets</div><div class="preamble">Edit expense names and amounts. <b>Target</b> = what you plan. <b>Current</b> = what you're spending, saving, or paying toward debt this month.</div>
+<div id="buckets" aria-label="Needs, wants and savings budget sections"></div>
+<section class="summary-panel" aria-live="polite" aria-label="Budget totals"><div class="headingline" style="color:#edcf82">Step 3 • See your totals</div><h2>Where your money stands</h2><div class="sumrow"><span>Take-home income</span><b id="sIncome">—</b></div><div class="sumrow"><span>Total target allocations</span><b id="sTarget">—</b></div><div class="sumrow"><span>Total current outflow</span><b id="sCurrent">—</b></div><div class="sumrow major"><span>Money left to assign</span><strong id="sRemaining">—</strong></div><div class="sum-note" id="sNote">Start entering income and expenses. Blank amounts count as $0 in totals.</div></section>
+<section class="actions-card"><div class="headingline">Step 4 • Keep a copy</div><h2>Save or share your budget</h2><div class="muted">Your numbers can stay on this device. Export a PDF or image to share, and use a backup file if you want to edit again on another phone or browser.</div><div class="buttons"><button type="button" class="btn primary" id="saveBtn">Save on this device</button><button type="button" class="btn gold" id="pdfBtn">Export PDF</button><button type="button" class="btn gold" id="pngBtn">Export image</button><button type="button" class="btn" id="backupBtn">Download editable backup</button><button type="button" class="btn" id="restoreBtn">Restore backup</button><button type="button" class="btn" id="exampleBtn">Load sample</button><button type="button" class="btn" id="resetBtn">Clear budget</button></div><input id="backupFile" class="visually-hidden" type="file" accept=".json,application/json" aria-label="Choose budget backup file"><div id="state" role="status" class="state">Ready to save privately on this device.</div></section>
+<div class="banner"><strong>Make the budget fit your life.</strong> The 50/30/20 split is a guideline. Essential bills can exceed 50%. Count minimum required debt payments under Needs; extra debt payments and savings belong in the 20% bucket. Money left to assign is not automatically safe to invest: first account for all upcoming bills and commitments.</div>
+<details class="details"><summary>How do I come back and update it?</summary><p>Use the same HTML file in the same browser to return to your saved entries, where local storage is supported. Before switching phones, browsers, or cleaning your device, select <b>Download editable backup</b>. Reopen the tool and select <b>Restore backup</b> to keep editing. PDF and PNG exports are for viewing and sharing, not editing. Some phone file-preview apps don't retain local data, so a backup is the safest option.</p></details>
+<footer class="footer"><b>STREAMS INTO WEALTH</b><p>Do it for your Future Self. Small pockets of time create real progress.</p><p>Your budget stays in your browser/device; this file does not send your financial information to us. On a shared device, download a backup for yourself and clear the budget.</p></footer>
+</div>
+</main>
+<script>
+(()=>{'use strict';
+const CATS=[
+ {id:'needs',name:'Needs',pct:.50,desc:'Housing, food, essential bills and transportation',defaults:['Housing','Groceries','Transportation'],color:'#103e31'},
+ {id:'wants',name:'Wants',pct:.30,desc:'Fun, subscriptions and optional purchases',defaults:['Dining & takeout','Subscriptions','Entertainment'],color:'#caa244'},
+ {id:'future',name:'Savings & Debt',pct:.20,desc:'Saving, investing and extra debt payments',defaults:['Emergency fund','Investing','Extra debt payoff'],color:'#396d82'}];
+const KEY='siw-budget-target-current-v2';
+const $=id=>document.getElementById(id);
+let model={income:'',month:new Date().toISOString().slice(0,7),groups:{}};
+let count=0;
+const newid=()=>`r${Date.now().toString(36)}${++count}`;
+const defaults=()=>{const out={income:'',month:new Date().toISOString().slice(0,7),groups:{}};for(const cat of CATS)out.groups[cat.id]=cat.defaults.map(n=>({id:newid(),name:n,target:'',current:''}));return out};
+const money=n=>new Intl.NumberFormat('en-US',{style:'currency',currency:'USD',maximumFractionDigits:2}).format(n);
+const val=s=>{const n=Number(s);return s===''||s==null?0:(Number.isFinite(n)?Math.max(0,n):0)};
+const sum=(rows,field)=>rows.reduce((t,r)=>t+val(r[field]),0);
+const numeric=s=>s===''||s==null?'':String(Math.max(0,Number(s)||0));
+const attr=(node,obj)=>{for(const [k,v] of Object.entries(obj))node.setAttribute(k,String(v));return node};
+function fieldNumber(r,key,catId){const box=document.createElement('div');box.className='cash-input '+(key==='current'?'current':'');const sym=document.createElement('span');sym.textContent='$';const inp=document.createElement('input');attr(inp,{type:'number',min:0,step:'0.01',inputmode:'decimal',placeholder:'0', 'aria-label':`${r.name} ${key} monthly dollars`});inp.value=r[key];inp.addEventListener('input',()=>{r[key]=numeric(inp.value);inp.setAttribute('aria-label',`${r.name} ${key} monthly dollars`);update()});box.append(sym,inp);return box}
+function render(){const root=$('buckets');root.replaceChildren();for(const cat of CATS){const sec=document.createElement('section');sec.className='bucket '+cat.id;sec.setAttribute('aria-label',cat.name+' budget');const head=document.createElement('div');head.className='bucket-title';const l=document.createElement('div');l.className='bucket-left';const dot=document.createElement('span');dot.className='bucket-dot';const tit=document.createElement('div');const h2=document.createElement('h2');h2.textContent=cat.name;const desc=document.createElement('div');desc.className='sub';desc.textContent=cat.desc;tit.append(h2,desc);l.append(dot,tit);const pct=document.createElement('span');pct.className='perc';pct.textContent=Math.round(cat.pct*100)+'% bucket';head.append(l,pct);const guideline=document.createElement('div');guideline.className='bucket-headline';const caplabel=document.createElement('span');caplabel.className='guide';caplabel.textContent='Suggested bucket limit / goal';const cap=document.createElement('b');cap.className='cap';cap.id='cap-'+cat.id;cap.textContent='—';guideline.append(caplabel,cap);const rh=document.createElement('div');rh.className='rowhead';for(const s of ['Expense','Target','Current']){const d=document.createElement('div');d.textContent=s;rh.append(d)}const rows=document.createElement('div');rows.className='budget-rows';for(const r of model.groups[cat.id]){const line=document.createElement('div');line.className='budget-row';const itemWrap=document.createElement('div');itemWrap.className='item-wrap';const name=document.createElement('input');name.className='item-name';attr(name,{type:'text',maxlength:64,'aria-label':cat.name+' expense name',placeholder:'Expense name'});name.value=r.name;name.addEventListener('input',()=>{r.name=name.value;update()});itemWrap.append(name);const del=document.createElement('button');del.className='remove';del.type='button';del.setAttribute('aria-label','Remove '+r.name+' expense');del.title='Remove row';del.textContent='×';del.addEventListener('click',()=>{if(!confirm('Remove this expense row?'))return;model.groups[cat.id]=model.groups[cat.id].filter(x=>x.id!==r.id);render();update()});itemWrap.append(del);line.append(itemWrap,fieldNumber(r,'target',cat.id),fieldNumber(r,'current',cat.id));rows.append(line)}const add=document.createElement('button');add.className='add-row';add.textContent='+ Add expense';add.type='button';add.addEventListener('click',()=>{if(model.groups[cat.id].length>=24){alert('For a simple, fast budget, each bucket has a limit of 24 lines.');return}model.groups[cat.id].push({id:newid(),name:'',target:'',current:''});render();update();const inputs=root.querySelectorAll('.bucket.'+cat.id+' .item-name');inputs[inputs.length-1]?.focus()});const totals=document.createElement('div');totals.className='totals';const trow=document.createElement('div');trow.className='totals-row';const ttl=document.createElement('div');ttl.textContent='TOTAL';const targ=document.createElement('div');targ.id='target-'+cat.id;const curr=document.createElement('div');curr.id='current-'+cat.id;trow.append(ttl,targ,curr);const tfoot=document.createElement('div');tfoot.className='totals-foot';const txt=document.createElement('span');txt.textContent='Current vs. guideline';const diff=document.createElement('span');diff.className='difference';diff.id='diff-'+cat.id;tfoot.append(txt,diff);totals.append(trow,tfoot);sec.append(head,guideline,rh,rows,add,totals);root.append(sec)}}
+let storageOkay=true;function save(status){try{localStorage.setItem(KEY,JSON.stringify(model));storageOkay=true;if(status)$('state').textContent='Saved on this browser/device. For safekeeping, download an editable backup.'}catch(err){storageOkay=false;if(status)$('state').textContent='This browser cannot keep local saves. Download an editable backup to return later.'}}
+function update(){const income=val(model.income),filled=model.income!=='';let tg=0,cur=0;for(const cat of CATS){const rows=model.groups[cat.id];const target=sum(rows,'target'),current=sum(rows,'current'),cap=income*cat.pct;tg+=target;cur+=current;$('cap-'+cat.id).textContent=filled?money(cap):'—';$('target-'+cat.id).textContent=money(target);$('current-'+cat.id).textContent=money(current);const diff=current-cap;const d=$('diff-'+cat.id);if(!filled){d.textContent='Enter income to compare';d.className='difference'}else if(Math.abs(diff)<.005){d.textContent='At '+Math.round(cat.pct*100)+'% guideline';d.className='difference'}else if(cat.id==='future'){d.textContent=money(Math.abs(diff))+(diff<0?' below goal':' above goal');d.className='difference '+(diff<0?'over':'')}else{d.textContent=money(Math.abs(diff))+(diff>0?' above guideline':' below guideline');d.className='difference '+(diff>0?'over':'')}}$('sIncome').textContent=filled?money(income):'—';$('sTarget').textContent=money(tg);$('sCurrent').textContent=money(cur);const remaining=income-cur;$('sRemaining').textContent=filled?money(remaining):'—';$('sRemaining').style.color=filled&&remaining<0?'#ffbfa9':'#f7db8f';const blank=model.groups.needs.concat(model.groups.wants,model.groups.future).filter(r=>r.name.trim()&&r.current==='').length;$('sNote').textContent=!filled?'Enter income to see your balance. Blank amount fields count as $0.':(remaining<0?'Spending/contributions currently exceed income. Review your numbers.':remaining===0?'Your entered current amounts use all your income.':'This is unassigned money based on the amounts entered, not automatically available to invest.')+(blank?' '+blank+' current fields are blank and counted as $0.':' All listed current fields have values.');save(false)}
+function restoreSaved(){const d=(()=>{try{return JSON.parse(localStorage.getItem(KEY)||'null')}catch{return null}})();if(d&&valid(d))model=normalize(d);else model=defaults()}
+function valid(v){return v&&typeof v==='object'&&v.groups&&typeof v.groups==='object'&&CATS.every(x=>Array.isArray(v.groups[x.id]))}
+function normalize(x){const out=defaults();out.income=numeric(x.income);out.month=/^\d{4}-\d{2}$/.test(x.month)?x.month:out.month;for(const cat of CATS)out.groups[cat.id]=x.groups[cat.id].slice(0,24).map(r=>({id:newid(),name:String(r.name||'').slice(0,64),target:numeric(r.target),current:numeric(r.current)}));return out}
+function sync(){ $('income').value=model.income;$('month').value=model.month;render();update()}
+function slug(){return 'Pocket_Streams_Budget_'+(model.month||'monthly')}
+function download(blob,file){const u=URL.createObjectURL(blob);const a=document.createElement('a');a.href=u;a.download=file;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),45000)}
+function saveBackup(){const b=new Blob([JSON.stringify({format:'streams-into-wealth-budget-v2',savedAt:new Date().toISOString(),...model},null,2)],{type:'application/json'});download(b,slug()+'_EDITABLE_BACKUP.json');$('state').textContent='Editable backup downloaded. Keep this file to restore your entries later.'}
+function rounded(ctx,x,y,w,h,r,fill){ctx.beginPath();ctx.roundRect(x,y,w,h,r);ctx.fillStyle=fill;ctx.fill()}
+function reportCanvas(){// A shareable, high-resolution snapshot of all current budget lines.
+const W=1100,m=55;const rowsHeight=55;const catHeight=cat=>170+Math.max(1,model.groups[cat.id].length)*rowsHeight;const H=460+CATS.reduce((t,cat)=>t+catHeight(cat)+24,0)+330;
+if(H>16000)throw new Error('This budget is too long for one image; remove some unused rows.');const cv=document.createElement('canvas');cv.width=W;cv.height=H;const ctx=cv.getContext('2d');ctx.fillStyle='#fff';ctx.fillRect(0,0,W,H);ctx.textBaseline='middle';const txt=(s,x,y,size=27,color='#183c2e',weight=500,align='left')=>{ctx.fillStyle=color;ctx.font=`${weight} ${size}px Arial, sans-serif`;ctx.textAlign=align;ctx.fillText(String(s),x,y)};const line=(x,y,w,color='#e5eae6')=>{ctx.fillStyle=color;ctx.fillRect(x,y,w,2)};rounded(ctx,0,0,W,196,0,'#103e31');txt('STREAMS INTO WEALTH',m,40,23,'#f0d79b',800);txt('Pocket Streams Budget',m,106,48,'#fff',750);txt('50 / 30 / 20  |  Target vs. Current',m,158,24,'#e1eee7',500);
+let y=242;txt('BUDGET MONTH',m,y,20,'#758678',800);txt(model.month||'Not specified',m,y+42,31,'#173e31',700);txt('MONTHLY TAKE-HOME INCOME',m+520,y,20,'#758678',800);txt(model.income!==''?money(val(model.income)):'Not entered',m+520,y+42,31,'#173e31',700);y+=116;line(m,y,W-m*2,'#d0ded4');y+=35;
+for(const cat of CATS){let rH=catHeight(cat),x=m,w=W-2*m;rounded(ctx,x,y,w,rH,18,'#f9faf7');rounded(ctx,x,y,9,rH,5,cat.color);txt(cat.name.toUpperCase(),x+35,y+34,31,'#143b2d',800);txt(Math.round(cat.pct*100)+'% guideline: '+(model.income!==''?money(val(model.income)*cat.pct):'—'),x+w-26,y+34,23,'#5a7367',700,'right');line(x+24,y+65,w-48);txt('EXPENSE',x+35,y+93,19,'#6c7b71',800);txt('TARGET',x+650,y+93,19,'#6c7b71',800,'right');txt('CURRENT',x+940,y+93,19,'#6c7b71',800,'right');let ry=y+120;const rows=model.groups[cat.id];for(const row of rows){const s=(row.name||'Unnamed expense').trim();let label=s;if(ctx.measureText(label).width>500){label=label.slice(0,37)+'…'}txt(label,x+35,ry,23,'#1d3f34',500);txt(row.target!==''?money(val(row.target)):'—',x+650,ry,24,'#173e31',650,'right');txt(row.current!==''?money(val(row.current)):'—',x+940,ry,24,'#173e31',650,'right');line(x+34,ry+27,w-72,'#e9eee9');ry+=rowsHeight}txt('TOTAL',x+35,y+rH-29,24,'#173e31',800);txt(money(sum(rows,'target')),x+650,y+rH-29,25,'#173e31',800,'right');txt(money(sum(rows,'current')),x+940,y+rH-29,25,'#173e31',800,'right');y+=rH+24}
+rounded(ctx,m,y,W-m*2,228,19,'#103e31');txt('YOUR MONTHLY TOTALS',m+26,y+39,28,'#f2d387',800);const totalTarget=CATS.reduce((t,c)=>t+sum(model.groups[c.id],'target'),0),totalCur=CATS.reduce((t,c)=>t+sum(model.groups[c.id],'current'),0);txt('Target allocations',m+26,y+90,26,'#fff',500);txt(money(totalTarget),W-m-28,y+90,27,'#fff',750,'right');txt('Current outflow',m+26,y+134,26,'#fff',500);txt(money(totalCur),W-m-28,y+134,27,'#fff',750,'right');txt('Money left to assign',m+26,y+188,29,'#f8e1a5',800);txt(model.income!==''?money(val(model.income)-totalCur):'—',W-m-28,y+188,31,'#f8e1a5',800,'right');y+=260;txt('50/30/20 is a guide. The balance reflects entered expenses; blanks count as $0.',m,y,19,'#62766a',500);txt('Do it for your Future Self  •  Streams Into Wealth',m,y+45,23,'#174936',800);return cv}
+function pngExport(){try{const canvas=reportCanvas();canvas.toBlob(blob=>{if(blob){download(blob,slug()+'.png');$('state').textContent='Image exported. You can share or save it in Photos/Files.'}else alert('Your browser could not create this image.')},'image/png')}catch(err){alert(err.message)}}
+const fromDataUrl=(url)=>{const str=atob(url.split(',')[1]);const bytes=new Uint8Array(str.length);for(let i=0;i<str.length;i++)bytes[i]=str.charCodeAt(i);return bytes};
+function makePdf(images){// Minimal standards-compliant PDF with one JPEG image per Letter page; offline, no libraries.
+const enc=new TextEncoder();const parts=[];let pos=0;const offsets=[0];const add=s=>{const b=typeof s==='string'?enc.encode(s):s;parts.push(b);pos+=b.length};const pushObj=(id,s)=>{offsets[id]=pos;add(`${id} 0 obj\n`);add(s);add('\nendobj\n')};const n=images.length, kids=Array.from({length:n},(_,i)=>`${3+i*3} 0 R`).join(' ');add('%PDF-1.4\n%\xE2\xE3\xCF\xD3\n');pushObj(1,'<< /Type /Catalog /Pages 2 0 R >>');pushObj(2,`<< /Type /Pages /Kids [${kids}] /Count ${n} >>`);
+images.forEach((cv,i)=>{const page=3+i*3,cont=page+1,im=page+2;const jpg=fromDataUrl(cv.toDataURL('image/jpeg',.91));pushObj(page,`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /XObject << /Im${i} ${im} 0 R >> >> /Contents ${cont} 0 R >>`);let cmd=`q\n612 0 0 792 0 0 cm\n/Im${i} Do\nQ\n`;pushObj(cont,`<< /Length ${enc.encode(cmd).length} >>\nstream\n${cmd}endstream`);offsets[im]=pos;add(`${im} 0 obj\n<< /Type /XObject /Subtype /Image /Width ${cv.width} /Height ${cv.height} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${jpg.length} >>\nstream\n`);add(jpg);add('\nendstream\nendobj\n')});const start=pos;const count=3+3*n;add(`xref\n0 ${count}\n0000000000 65535 f \n`);for(let i=1;i<count;i++)add(`${String(offsets[i]).padStart(10,'0')} 00000 n \n`);add(`trailer\n<< /Size ${count} /Root 1 0 R >>\nstartxref\n${start}\n%%EOF`);return new Blob(parts,{type:'application/pdf'})}
+function pdfExport(){try{
+const source=reportCanvas(),width=1100,sz=Math.floor(width*792/612),pages=[];
+// Favor page breaks between complete buckets, rather than halfway through a row.
+const candidates=[];let cursor=393;for(const cat of CATS){candidates.push(cursor);cursor+=170+Math.max(1,model.groups[cat.id].length)*55+24;}candidates.push(cursor);
+let offset=0;while(offset<source.height){const limit=offset+sz;const viable=candidates.filter(v=>v>offset+320&&v<=limit-20);let end=Math.min(limit,source.height);if(end<source.height&&viable.length)end=Math.max(...viable);const page=document.createElement('canvas');page.width=width;page.height=sz;const ctx=page.getContext('2d');ctx.fillStyle='#fff';ctx.fillRect(0,0,page.width,page.height);ctx.drawImage(source,0,offset,source.width,end-offset,0,0,width,end-offset);pages.push(page);offset=end;}
+download(makePdf(pages),slug()+'.pdf');$('state').textContent='PDF exported. Save it to Files or share it with others.'
+}catch(err){alert('Could not export PDF: '+err.message)}}
+$('income').addEventListener('input',e=>{model.income=numeric(e.target.value);update()});$('month').addEventListener('input',e=>{model.month=e.target.value;save(false)});
+$('saveBtn').addEventListener('click',()=>save(true));$('backupBtn').addEventListener('click',saveBackup);$('pngBtn').addEventListener('click',pngExport);$('pdfBtn').addEventListener('click',pdfExport);
+$('restoreBtn').addEventListener('click',()=>$('backupFile').click());$('backupFile').addEventListener('change',async e=>{const f=e.target.files?.[0];if(!f)return;try{if(f.size>1024*1024)throw Error('Backup file is too large.');const obj=JSON.parse(await f.text());if(!valid(obj))throw Error('This is not a compatible Streams Into Wealth backup.');if(!confirm('Replace the budget on this screen with the saved backup?'))return;model=normalize(obj);sync();save(true);$('state').textContent='Backup restored. You can now edit your budget.'}catch(err){alert('Could not restore backup: '+err.message)}finally{e.target.value=''}});
+$('exampleBtn').addEventListener('click',()=>{if(!confirm('Load a sample budget? This replaces your current entries. Download a backup first if you want to keep them.'))return;model=defaults();model.income='4000';const values={needs:[[1300,1300],[420,450],[280,290]],wants:[[250,210],[60,60],[200,120]],future:[[300,300],[200,100],[150,100]]};for(const c of CATS)model.groups[c.id].forEach((r,i)=>{r.target=String(values[c.id][i][0]);r.current=String(values[c.id][i][1])});sync()});
+$('resetBtn').addEventListener('click',()=>{if(!confirm('Clear all income and expenses on this device? Download an editable backup first if you want to keep them.'))return;model=defaults();sync();$('state').textContent='Budget cleared. Start with your take-home income.'});
+restoreSaved();sync();
+})();
+</script>
+</body>
+</html>
